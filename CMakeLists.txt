@@ -1,10 +1,19 @@
 cmake_minimum_required(VERSION 3.16)
 project(sort-visi C CXX)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 23)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Option to use bundled raylib
+option(USE_EXTERNAL_RAYLIB "Use raylib from external folder" OFF)
+
+if(USE_EXTERNAL_RAYLIB)
+    add_subdirectory(external/raylib)
+else()
+    find_package(raylib REQUIRED)
+endif()
 
 # Source files
 file(GLOB_RECURSE SOURCES src/*.cpp src/*.c)
@@ -17,3 +26,25 @@ target_include_directories(${PROJECT_NAME}
         include
 )
 
+# Link raylib
+if(USE_EXTERNAL_RAYLIB)
+    target_link_libraries(${PROJECT_NAME} raylib)
+else()
+    target_link_libraries(${PROJECT_NAME} raylib)
+endif()
+
+# Platform-specific libraries
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME}
+        winmm
+        gdi32
+    )
+elseif(UNIX)
+    target_link_libraries(${PROJECT_NAME}
+        m
+        pthread
+        dl
+        rt
+        X11
+    )
+endif()
