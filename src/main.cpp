@@ -1,8 +1,37 @@
+#include <functional>
 #include <iostream>
 #include <random>
 #include <raylib.h>
 #include <vector>
 #include <set>
+
+namespace SortingAlgorithms {
+	void insertion_sort_step(std::vector<float>& vec, std::set<size_t>& compared) {
+		static size_t right {0};
+		static bool done = false;
+		
+		if(right >= vec.size()) {
+			done = true;
+			return;
+		}
+		
+		size_t min_idx { right };
+
+		for(size_t i{right}; i < vec.size(); i++) {
+			if(vec[i] < vec[min_idx]) {
+				min_idx = i;
+			}
+		}
+
+		float temp { vec[right] };
+		vec[right] = vec[min_idx];
+		vec[min_idx] = temp;
+		compared.emplace(min_idx);
+		compared.emplace(right);
+		right++;
+		
+	}
+}
 
 class SortingVisualizer {
 public:
@@ -27,7 +56,7 @@ public:
 			
 			draw_vec();
 			m_compared.clear();
-			sort_step();
+			sort_step(SortingAlgorithms::insertion_sort_step);
 			EndDrawing();
 			ClearBackground(BLACK);
 		}
@@ -43,28 +72,8 @@ public:
 	}
 
 	
-	void sort_step() {
-		static size_t right {0};
-
-		if(right >= MAX_AMOUNT) {
-			m_done = true;
-			return;
-		}
-		
-		size_t min_idx { right };
-
-		for(size_t i{right}; i < MAX_AMOUNT; i++) {
-			if(m_to_sort[i] < m_to_sort[min_idx]) {
-				min_idx = i;
-			}
-		}
-
-		float temp { m_to_sort[right] };
-		m_to_sort[right] = m_to_sort[min_idx];
-		m_to_sort[min_idx] = temp;
-		m_compared.emplace(min_idx);
-		m_compared.emplace(right);
-		right++;
+	void sort_step(std::function<void(std::vector<float>&, std::set<size_t>&)> f) {
+		f(m_to_sort, m_compared);
 	}
 
 private:
